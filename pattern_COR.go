@@ -5,12 +5,11 @@ import "fmt"
 /// создаем клиента
 type Client struct {
 	money    int
-	freeTime float64
+	allTime float64
 	sizeOfWheel int
 	typeOfInjector string
 	modelYear int
 	mileage int
-	stateOfEngine string
 }
 
 /// создаем интерфейс
@@ -27,11 +26,9 @@ func (ws *WheelSwap) SetNext(w WorkStation) {
 	ws.NextWorkStation = w
 }
 func (ws *WheelSwap) Execute(c *Client) {
-	if c.money < 1500 || c.freeTime < 1.5 || c.sizeOfWheel > 21 {
+	if c.money < 1500 || c.sizeOfWheel > 21 {
 		if c.sizeOfWheel > 21 {
 			fmt.Println("Шиномонтаж данного размера колес невозможен")
-		} else if c.freeTime < 1.5 {
-			fmt.Println("Недостаточно времени для выполнения шиномонтажа")
 		} else if c.money < 1500  {
 			fmt.Println("Недостаточно средств для выполнения шиномонтажа")
 		}
@@ -42,7 +39,7 @@ func (ws *WheelSwap) Execute(c *Client) {
 	}
 	fmt.Println("Шиномонтаж завершен успешно")
 	c.money -= 1500
-	c.freeTime -= 1.5
+	c.allTime += 1.5
 
 	if ws.NextWorkStation != nil {
 		ws.NextWorkStation.Execute(c)
@@ -59,12 +56,10 @@ func (ci *CleanInjector) SetNext(w WorkStation) {
 func (ci *CleanInjector) Execute(c *Client) {
 	if c.typeOfInjector == "ceramic"{
 		fmt.Println("Чистка керамических форсунок ультразвуком невозможна")
-	} else if c.freeTime < 2.0 {
-		fmt.Println("Недостаточно времени для выполнения чистки форсунок")
 	} else if c.money < 2000  {
 		fmt.Println("Недостаточно средств для выполнения чистки форсунок")
 	}
-	if c.money < 2000 || c.freeTime < 2.0 || c.typeOfInjector == "ceramic" {
+	if c.money < 2000 || c.typeOfInjector == "ceramic" {
 		if ci.NextWorkStation != nil {
 			ci.NextWorkStation.Execute((c))
 		}
@@ -72,7 +67,7 @@ func (ci *CleanInjector) Execute(c *Client) {
 	}
 	fmt.Println("Чистка форсунок завершена успешно")
 	c.money -= 2000
-	c.freeTime -= 2.0
+	c.allTime += 2.0
 
 	if ci.NextWorkStation != nil {
 		ci.NextWorkStation.Execute(c)
@@ -87,11 +82,9 @@ func (co *ChangeOil) SetNext(w WorkStation) {
 	co.NextWorkStation = w
 }
 func (co *ChangeOil) Execute(c *Client) {
-	if c.money < 500 || c.freeTime < 0.5 || c.mileage < 5000 {
+	if c.money < 500 || c.mileage < 5000 {
 		if c.mileage < 5000 {
 			fmt.Println("Межсервисный пробег слишком мал для замены масла")
-		} else if c.freeTime < 2.0 {
-			fmt.Println("Недостаточно времени для замены масла")
 		} else if c.money < 500 {
 			fmt.Println("Недостаточно средств для замены масла")
 		}
@@ -102,40 +95,10 @@ func (co *ChangeOil) Execute(c *Client) {
 	}
 	fmt.Println("Замена масла выполнена")
 	c.money -= 500
-	c.freeTime -= 0.5
+	c.allTime += 0.5
 
 	if co.NextWorkStation != nil {
 		co.NextWorkStation.Execute(c)
-	}
-}
-
-/// имплементация "Ремонт двигателя"
-type RepairEngine struct {
-	NextWorkStation WorkStation
-}
-func (re *RepairEngine) SetNext(w WorkStation) {
-	re.NextWorkStation = w
-}
-func (re *RepairEngine) Execute(c *Client) {
-	if c.money < 5000 || c.freeTime < 6.0 || c.stateOfEngine == "good" {
-		if c.stateOfEngine == "good"  {
-			fmt.Println("Двигатель в ремонте не нуждается")
-		} else if c.freeTime < 6.0 {
-			fmt.Println("Недостаточно времени для выполнения ремонта двигателя")
-		} else if c.money < 5000 {
-			fmt.Println("Недостаточно средств для выполнения ремонта двигателя")
-		}
-		if re.NextWorkStation != nil {
-			re.NextWorkStation.Execute(c)
-		}
-		return
-	}
-	fmt.Println("Двигатель отремонтирован")
-	c.money -= 5000
-	c.freeTime -= 6
-
-	if re.NextWorkStation != nil {
-		re.NextWorkStation.Execute(c)
 	}
 }
 
@@ -147,11 +110,9 @@ func (rec *ResetErrCodes) SetNext (w WorkStation) {
 	rec.NextWorkStation = w
 }
 func (rec *ResetErrCodes) Execute (c *Client) {
-	if c.money < 200 || c.freeTime < 0.1 || c.modelYear < 2005 {
+	if c.money < 200 || c.modelYear < 2005 {
 		if c.modelYear < 2005{
 			fmt.Println("Ваш автомобиль не оснащен системой оповещения об ошибках ДВС")
-		} else if c.freeTime < 0.5 {
-			fmt.Println("Недостаточно времени для выполнения сброса кодов ошибок")
 		} else if  c.money < 200 {
 			fmt.Println("Недостаточно средств для выполнения сброса кодов ошибок")
 		}
@@ -162,7 +123,7 @@ func (rec *ResetErrCodes) Execute (c *Client) {
 	}
 	fmt.Println("Коды ошибок удалены")
 	c.money -= 200
-	c.freeTime -= 0.1
+	c.allTime += 0.1
 
 	if rec.NextWorkStation != nil {
 		rec.NextWorkStation.Execute(c)
@@ -174,15 +135,13 @@ func AllVariant () WorkStation {
 	WheelSwap := WheelSwap{}
 	ChangeOil := ChangeOil{}
 	CleanInjector := CleanInjector{}
-	RepairEngine := RepairEngine{}
 	ResetErrCodes := ResetErrCodes{}
 
-	RepairEngine.SetNext(&ChangeOil)
 	ChangeOil.SetNext(&CleanInjector)
 	CleanInjector.SetNext(&ResetErrCodes)
 	ResetErrCodes.SetNext(&WheelSwap)
 
-	return &RepairEngine
+	return &ChangeOil
 }
 
 
@@ -213,9 +172,6 @@ func main() {
 	fmt.Println("На какую сумму ремонта рассчитываете?")
 	fmt.Scan(&sum)
 
-	fmt.Println("Сколько часов у нас времени?")
-	fmt.Scan(&tim)
-
 	fmt.Println("Какого года ваш автомобиль?")
 	fmt.Scan(&year)
 
@@ -230,9 +186,8 @@ func main() {
 
 	c := Client{
 		money: sum,
-		freeTime: tim,
+		allTime: tim,
 		sizeOfWheel: wheel,
-		stateOfEngine: "good",
 		modelYear: year,
 		typeOfInjector: "non-ceramic",
 		mileage: mile,
@@ -246,5 +201,5 @@ func main() {
 	
 	fmt.Printf("%s, ваша сдача составила %d рублей", Name, c.money)
 	fmt.Println("")
-	fmt.Printf("Машина была готова за %.1f часа до вашего приезда", c.freeTime)
+	fmt.Printf("Всего затрачено %.1f ч.", c.allTime)
 }
